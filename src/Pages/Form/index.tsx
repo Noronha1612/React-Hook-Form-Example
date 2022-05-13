@@ -37,7 +37,7 @@ export const Form = () => {
           <h4>Dados da equipe</h4>
           <FieldInput inputProps={{placeholder: "Nome *"}} />
           <FieldInput inputProps={{placeholder: "Apelido"}} />
-          <FieldInput inputProps={{placeholder: "Orçamento *"}} />
+          <FieldInput currency inputProps={{placeholder: "Orçamento *"}} />
         </fieldset>
 
         <fieldset>
