@@ -1,4 +1,6 @@
 import { FiUser } from 'react-icons/fi';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 import {
   Container,
@@ -10,7 +12,7 @@ import {
 
 import { PersonCard } from './components/PersonCard';
 import { FormFields, Genre } from '../../models/FormFields';
-import { FormEvent } from 'react';
+import { FormSchema } from '../../validators/Form';
 
 const newPerson: FormFields['persons'][0] = {
   name: '',
@@ -20,24 +22,38 @@ const newPerson: FormFields['persons'][0] = {
 }
 
 export const Form = () => {
+  const { register, handleSubmit, control, formState: { errors } } = useForm<FormFields>({
+    mode: 'onBlur',
+    resolver: yupResolver(FormSchema),
+    defaultValues: {
+      persons: [newPerson],
+    }
+  });
+
+  const PERSONS_KEY = 'persons';
+  const { fields: persons, append, remove } = useFieldArray({
+    control,
+    name: PERSONS_KEY,
+  });
+
   const handleAddPerson = () => {
-    // Adicionar pessoa
+    append(newPerson);
   }
 
-  const handleSendData = (event: FormEvent) => {
-    event.preventDefault();
+  const handleSendData = (data: FormFields) => {
+    console.log(data);
   }
 
   return (
     <Container>
-      <FormContainer onSubmit={handleSendData}>
+      <FormContainer onSubmit={handleSubmit(handleSendData)}>
         <h1>Formulário</h1>
 
         <fieldset>
           <h4>Dados da equipe</h4>
-          <FieldInput inputProps={{placeholder: "Nome *"}} />
-          <FieldInput inputProps={{placeholder: "Apelido"}} />
-          <FieldInput currency inputProps={{placeholder: "Orçamento *"}} />
+          <FieldInput inputProps={{placeholder: "Nome *"}} register={register('name')} error={errors?.name} />
+          <FieldInput inputProps={{placeholder: "Apelido"}} register={register('nickname')} error={errors?.nickname} />
+          <FieldInput currency inputProps={{placeholder: "Orçamento *"}} register={register('amount')} error={errors?.amount} />
         </fieldset>
 
         <fieldset>
@@ -50,11 +66,19 @@ export const Form = () => {
             </ButtonLink>
           </header>
 
-          {!true && (
+          {!persons.length && (
             <span className='no-persons'>Nenhuma pessoa na equipe ;-;</span>
           )}
 
-        <PersonCard />
+          {persons.map((person, index) => (
+            <PersonCard
+              key={person.id}
+              onDelete={() => remove(index)}
+              control={control}
+              rootKey={`${PERSONS_KEY}.${index}`}
+              errors={errors?.persons?.[index]}
+            />
+          ))}
         </fieldset>
 
         <ButtonWrapper>

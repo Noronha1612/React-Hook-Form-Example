@@ -13,5 +13,5 @@ export type FormFields = {
     lastName: string;
     role: string;
     genre: Genre;
-  }[]
+  }[];
 }
